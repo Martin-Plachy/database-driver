@@ -103,6 +103,15 @@ class DatabaseDriver {
         self::$connection->exec($sql_query);
     }
 
+    public static function readTable(string $tableName): array
+    {
+        $sql_query = "SELECT * FROM $tableName";
+
+        $statement = self::$connection->query($sql_query);
+        $table = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $table;  
+    }
+
     public static function deleteTable(string $tableName)
     {       
         $sql_query = "DROP TABLE IF EXISTS $tableName";
@@ -150,28 +159,6 @@ class DatabaseDriver {
         self::$connection->exec($sql_query); 
     }
 
-    public static function deleteOneRowInTable(string $tableName, string $columnName, int|string $rowValue)
-    {
-        if(!$columnName){
-            $columnNameWithPrimaryKey = self::getColumnWithPrimaryKey($tableName);
-        }else{
-            $columnNameWithPrimaryKey = $columnName;
-        }
-
-        $sql_query = "DELETE FROM $tableName WHERE $columnNameWithPrimaryKey = $rowValue";
-
-        self::$connection->exec($sql_query);
-    }
-
-    public static function readTable(string $tableName): array
-    {
-        $sql_query = "SELECT * FROM $tableName";
-
-        $statement = self::$connection->query($sql_query);
-        $table = $statement->fetchAll(PDO::FETCH_ASSOC);
-        return $table;  
-    }
-
     public static function readOneRowInTable(string $tableName, string $columnName, int|string $rowValue): array
     {
         if(!$columnName){
@@ -187,4 +174,16 @@ class DatabaseDriver {
         return $row;
     }
 
+    public static function deleteOneRowInTable(string $tableName, string $columnName, int|string $rowValue)
+    {
+        if(!$columnName){
+            $columnNameWithPrimaryKey = self::getColumnWithPrimaryKey($tableName);
+        }else{
+            $columnNameWithPrimaryKey = $columnName;
+        }
+
+        $sql_query = "DELETE FROM $tableName WHERE $columnNameWithPrimaryKey = $rowValue";
+
+        self::$connection->exec($sql_query);
+    }
 }
