@@ -18,7 +18,7 @@ $rowTableInputArrayKeys = array_keys($rowTableInputArray);
 
 $primary_key_index = 0;
 
-DatabaseDriver::connectDatabaseServer($dsn, $username, $password, $dbName);
+DatabaseDriver::connectDatabaseServer(DB_DSN, DB_USERNAME, DB_PASSWORD, $dbName);
 DatabaseDriver::createTable($tableName, $rowTableInputArray, $primary_key_index, true);
 DatabaseDriver::insertOneRowInTable($tableName, $rowTableInputArray);
 DatabaseDriver::disconnectDatabaseServer();
