@@ -2,7 +2,7 @@
   "name": "database-driver",
   "version": "1.0.0",
   "description": "A simple database driver written in PHP for a connection to MySQL database and sending basic SQL statements.",
-  "main": "index.js",
+  "main": "index.PHP",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
