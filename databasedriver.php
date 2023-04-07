@@ -257,7 +257,14 @@ class DatabaseDriver {
                             $statement->bindParam(':' . $inputValuesArrayKeys[$i],$rowValue[$inputValuesArrayKeys[$i]]);
                     }
     
-                    $statement->execute();    
+                    try
+                    {
+                        $statement->execute();
+                    }catch(PDOException $e)
+                    {
+                        echo date("d. m. Y H:i:s - ") . $e->getMessage() . "<br>";
+                    }
+                        
                 }  
             }catch(Error $e)
             {
