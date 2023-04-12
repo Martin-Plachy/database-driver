@@ -130,7 +130,7 @@ class DatabaseDriver {
 
     //  CRUD STATEMENTS FOR A TABLE:
 
-    public static function createTable(string $tableName, array|string $rowValues, int $primary_key_index, bool $createFromInputArray)
+    public static function createTable(string $tableName, array|string $rowValues, int $primary_key_index, bool $createFromInputString = false)
     {       
         if(is_array($rowValues))
             {
@@ -153,7 +153,7 @@ class DatabaseDriver {
              
             $sql_query = "CREATE TABLE IF NOT EXISTS $tableName (";
       
-            if($createFromInputArray)
+            if(!$createFromInputString)
             {
                 for ($i = 0; $i < count($inputValuesArrayKeys); $i++){
                     $sql_query .= "$inputValuesArrayKeys[$i] ";
@@ -162,9 +162,12 @@ class DatabaseDriver {
                     {
                         $sql_query .= "DATE NOT NULL";
                     }else{
-                        if (is_int($inputValues[$inputValuesArrayKeys[$i]])) {
-                        
-                            $sql_query .= "INT(10) NOT NULL";
+                        if (is_numeric($inputValues[$inputValuesArrayKeys[$i]])) {
+                            if(is_int($inputValues[$inputValuesArrayKeys[$i]])) {
+                                $sql_query .= "INT(10) NOT NULL";    
+                            }else{
+                                $sql_query .= "VARCHAR(30) NOT NULL";
+                            }
                         }else{
                             if($inputValues[$inputValuesArrayKeys[$i]] == null){
                                 $sql_query .= "VARCHAR(30) NULL";
@@ -220,6 +223,8 @@ class DatabaseDriver {
 
     public static function insertRowsInTable(string $tableName, array $rowValues)
     {       
+        $inputValuesArrayKeys = [];
+        
         foreach ($rowValues as $rowValue)
             {
                 $inputValuesArrayKeys = array_keys($rowValue);
