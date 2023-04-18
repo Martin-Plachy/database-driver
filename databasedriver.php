@@ -16,7 +16,7 @@ class DatabaseDriver {
 
     private static function getColumnWithPrimaryKey(string $tableName): string
     {
-        $sql_query = "SELECT K.COLUMN_NAME FROM  
+        $sqlQuery = "SELECT K.COLUMN_NAME FROM  
         INFORMATION_SCHEMA.TABLE_CONSTRAINTS T
         JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE K
         ON K.CONSTRAINT_NAME=T.CONSTRAINT_NAME  
@@ -25,7 +25,7 @@ class DatabaseDriver {
         
         try
         {
-            $statement = self::$connection->query($sql_query);
+            $statement = self::$connection->query($sqlQuery);
             $columnNameWithPrimaryKeyArray = $statement->fetch(PDO::FETCH_ASSOC);
             return $columnNameWithPrimaryKeyArray['COLUMN_NAME'];        
         }catch(Error $e)
@@ -53,7 +53,7 @@ class DatabaseDriver {
         }  
     }
 
-    private static function iterateMultiDimArray(string $sql_query, array $columnName, array $rowValues): string
+    private static function iterateMultiDimArray(string $sqlQuery, array $columnName, array $rowValues): string
     {
         for ($i = 0; $i < count($columnName); $i++)
         {
@@ -61,19 +61,19 @@ class DatabaseDriver {
             foreach ($rowValues[$i] as $value)
             if ($j < count($rowValues[$i])-1)
             {
-                $sql_query .= "$columnName[$i] = $value OR ";
+                $sqlQuery .= "$columnName[$i] = :value_" . $i . "_" . $j . " OR ";
                 $j++;
             }else{
                 if($i < count($columnName)-1)
                 {
-                    $sql_query .= "$columnName[$i] = $value OR ";
+                    $sqlQuery .= "$columnName[$i] = :value_" . $i . "_" . $j . " OR ";
                 }else{
-                    $sql_query .= "$columnName[$i] = $value";
+                    $sqlQuery .= "$columnName[$i] = :value_" . $i . "_" . $j;
                 }               
                 $j = 0;
             } 
         }
-        return $sql_query;       
+        return $sqlQuery;       
     }
 
     //  DATABASE SERVER CONNECTION METHODS:
@@ -84,13 +84,13 @@ class DatabaseDriver {
         {
             self::$connection = new PDO($dsn, $username, $password, self::$databaseInitOptions);
 
-            $sql_query = "CREATE DATABASE IF NOT EXISTS $dbName";
+            $sqlQuery = "CREATE DATABASE IF NOT EXISTS $dbName";
     
-            self::$connection->exec($sql_query);
+            self::$connection->exec($sqlQuery);
             
-            $sql_query = "USE $dbName";
+            $sqlQuery = "USE $dbName";
     
-            self::$connection->exec($sql_query);
+            self::$connection->exec($sqlQuery);
         }catch(PDOException $e)
         {
             echo "Připojení k databázi $dbName selhalo: " . $e->getMessage() . "<br>";
@@ -106,22 +106,22 @@ class DatabaseDriver {
 
     public static function createDatabase(string $dbName)
     {
-        $sql_query = "CREATE DATABASE IF NOT EXISTS $dbName";
+        $sqlQuery = "CREATE DATABASE IF NOT EXISTS $dbName";
 
-        self::$connection->exec($sql_query);
+        self::$connection->exec($sqlQuery);
         
-        $sql_query = "USE $dbName";
+        $sqlQuery = "USE $dbName";
 
-        self::$connection->exec($sql_query);   
+        self::$connection->exec($sqlQuery);   
     }
 
     public static function deleteDatabase(string $dbName)
     {
-        $sql_query = "DROP DATABASE IF EXISTS $dbName";
+        $sqlQuery = "DROP DATABASE IF EXISTS $dbName";
 
         try
         {
-            self::$connection->exec($sql_query); 
+            self::$connection->exec($sqlQuery); 
         }catch(Error $e)
         {
             echo "Nastala chyba: " . $e->getMessage() . "<br>";
@@ -151,48 +151,48 @@ class DatabaseDriver {
                 }
             }
              
-            $sql_query = "CREATE TABLE IF NOT EXISTS $tableName (";
+            $sqlQuery = "CREATE TABLE IF NOT EXISTS $tableName (";
       
             if(!$createFromInputString)
             {
                 for ($i = 0; $i < count($inputValuesArrayKeys); $i++){
-                    $sql_query .= "$inputValuesArrayKeys[$i] ";
+                    $sqlQuery .= "$inputValuesArrayKeys[$i] ";
         
                     if(DateTime::createFromFormat('Y-m-d', $inputValues[$inputValuesArrayKeys[$i]]))
                     {
-                        $sql_query .= "DATE NOT NULL";
+                        $sqlQuery .= "DATE NOT NULL";
                     }else{
                         if (is_numeric($inputValues[$inputValuesArrayKeys[$i]])) {
                             if(is_int($inputValues[$inputValuesArrayKeys[$i]])) {
-                                $sql_query .= "INT(10) NOT NULL";    
+                                $sqlQuery .= "INT(10) NOT NULL";    
                             }else{
-                                $sql_query .= "VARCHAR(30) NOT NULL";
+                                $sqlQuery .= "VARCHAR(30) NOT NULL";
                             }
                         }else{
                             if($inputValues[$inputValuesArrayKeys[$i]] == null){
-                                $sql_query .= "VARCHAR(30) NULL";
+                                $sqlQuery .= "VARCHAR(30) NULL";
                             }else{
-                                $sql_query .= "VARCHAR(30) NOT NULL";
+                                $sqlQuery .= "VARCHAR(30) NOT NULL";
                             }
                         } 
                     }        
         
                     if ($i == $primary_key_index){
-                        $sql_query .= " PRIMARY KEY";
+                        $sqlQuery .= " PRIMARY KEY";
                     }
         
                     if ($i < count($inputValuesArrayKeys)-1){
-                        $sql_query .= ", ";
+                        $sqlQuery .= ", ";
                     }
                 }
             }else{
-                $sql_query .= "$inputValues";
+                $sqlQuery .= "$inputValues";
             }
-            $sql_query .= ")";
+            $sqlQuery .= ")";
 
             try
             {
-                self::$connection->exec($sql_query);
+                self::$connection->exec($sqlQuery);
             }catch(Error $e)
             {
                 echo "Nastala chyba: " . $e->getMessage() . "<br>";   
@@ -203,15 +203,15 @@ class DatabaseDriver {
     {             
         if(count($columnName) && self::isMultiDimArrayEmpty($rowValues) && count($columnName) == count($rowValues))
         {   
-            $sql_query = self::iterateMultiDimArray("SELECT * FROM $tableName WHERE ", $columnName, $rowValues);
+            $sqlQuery = self::iterateMultiDimArray("SELECT * FROM $tableName WHERE ", $columnName, $rowValues);
 
         }else{
-            $sql_query = "SELECT * FROM $tableName";
+            $sqlQuery = "SELECT * FROM $tableName";
         } 
         
         try
         {
-            $statement = self::$connection->query($sql_query);
+            $statement = self::$connection->query($sqlQuery);
             $table = $statement->fetchAll(PDO::FETCH_ASSOC);
             return $table; 
         }catch(Error $e)
@@ -230,41 +230,41 @@ class DatabaseDriver {
                 $inputValuesArrayKeys = array_keys($rowValue);
             }
             
-            $sql_query = "INSERT INTO $tableName(";
+            $sqlQuery = "INSERT INTO $tableName(";
     
             for ($i = 0; $i < count($inputValuesArrayKeys); $i++){
-                $sql_query .= "$inputValuesArrayKeys[$i]";
+                $sqlQuery .= "$inputValuesArrayKeys[$i]";
                 if ($i < count($inputValuesArrayKeys)-1){
-                    $sql_query .= ",";
+                    $sqlQuery .= ",";
                 }
             }
     
-            $sql_query .= ") ";
-            $sql_query .= "VALUES(";
+            $sqlQuery .= ") ";
+            $sqlQuery .= "VALUES(";
     
             for ($i = 0; $i < count($inputValuesArrayKeys); $i++){
-                $sql_query .= ":$inputValuesArrayKeys[$i]";
+                $sqlQuery .= ":$inputValuesArrayKeys[$i]";
                 if ($i < count($inputValuesArrayKeys)-1){
-                    $sql_query .= ",";
+                    $sqlQuery .= ",";
                 }
             }
     
-            $sql_query .= ") ";
+            $sqlQuery .= ") ";
 
             try
             {
-                $statement = self::$connection->prepare($sql_query);
+                $sqlQueryPrepared = self::$connection->prepare($sqlQuery);
     
                 foreach($rowValues as $rowValue)
                 { 
                     for ($i = 0; $i < count($inputValuesArrayKeys); $i++){
                             
-                            $statement->bindParam(':' . $inputValuesArrayKeys[$i],$rowValue[$inputValuesArrayKeys[$i]]);
+                            $sqlQueryPrepared->bindParam(':' . $inputValuesArrayKeys[$i],$rowValue[$inputValuesArrayKeys[$i]]);
                     }
     
                     try
                     {
-                        $statement->execute();
+                        $sqlQueryPrepared->execute();
                     }catch(PDOException $e)
                     {
                         echo date("d. m. Y H:i:s - ") . $e->getMessage() . "<br>";
@@ -277,19 +277,26 @@ class DatabaseDriver {
             }
     }
 
-    public static function deleteTable(string $tableName, array $columnName = [], array $rowValues = [[]])
-    {       
+    public static function deleteTable(string $tableName, array $columnName, array $rowValues)
+    {
         if(count($columnName) && self::isMultiDimArrayEmpty($rowValues) && count($columnName) == count($rowValues))
         {
-            $sql_query = self::iterateMultiDimArray("DELETE FROM $tableName WHERE ", $columnName, $rowValues);
-
+            $sqlQuery = self::iterateMultiDimArray("DELETE FROM $tableName WHERE ", $columnName, $rowValues);
         }else{
-            $sql_query = "DROP TABLE IF EXISTS $tableName";
+            $sqlQuery = "DROP TABLE IF EXISTS $tableName";
         } 
-        
+
         try
         {     
-            self::$connection->exec($sql_query);   
+            $sqlQueryPrepared = self::$connection->prepare($sqlQuery);
+            foreach ($rowValues as $keyI => $rowValue)
+            {
+                foreach ($rowValue as $keyJ => $value)
+                {    
+                    $sqlQueryPrepared->bindValue(':value_' . $keyI . '_' . $keyJ,$value);
+                }
+            }
+            $sqlQueryPrepared->execute();   
         }catch(Error $e)
         {
             echo "Nastala chyba: " . $e->getMessage() . "<br>";
@@ -302,38 +309,39 @@ class DatabaseDriver {
     {
         $rowValueArrayKeys = array_keys($rowValue);     
         
-        $sql_query = "INSERT INTO $tableName(";
+        $sqlQuery = "INSERT INTO $tableName(";
 
         for ($i = 0; $i < count($rowValueArrayKeys); $i++){
-            $sql_query .= "$rowValueArrayKeys[$i]";
+            $sqlQuery .= "$rowValueArrayKeys[$i]";
             if ($i < count($rowValueArrayKeys)-1){
-                $sql_query .= ",";
+                $sqlQuery .= ",";
             }
         }
 
-        $sql_query .= ") ";
-        $sql_query .= "VALUES(";
+        $sqlQuery .= ") ";
+        $sqlQuery .= "VALUES(";
 
         for ($i = 0; $i < count($rowValueArrayKeys); $i++){
-            if(is_int($rowValue[$rowValueArrayKeys[$i]])){
-                $sql_query .= $rowValue[$rowValueArrayKeys[$i]];
-            }else{
-                $sql_query .= "'" . $rowValue[$rowValueArrayKeys[$i]] . "'";
-            }
-            
+            $sqlQuery .= ":$rowValueArrayKeys[$i]";
             if ($i < count($rowValueArrayKeys)-1){
-                $sql_query .= ",";
+                $sqlQuery .= ",";
             }
         }
 
-        $sql_query .= ")";
-        
+        $sqlQuery .= ")";
+
         try
         {
-            self::$connection->exec($sql_query);
+            $sqlQueryPrepared = self::$connection->prepare($sqlQuery);
+
+            for ($i = 0; $i < count($rowValueArrayKeys); $i++)
+            {           
+                $sqlQueryPrepared->bindParam(':' . $rowValueArrayKeys[$i],$rowValue[$rowValueArrayKeys[$i]]);
+            }
+            $sqlQueryPrepared->execute();
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";   
+            echo "Nastala chyba: " . $e->getMessage() . "<br>";
         }
     }
 
@@ -341,11 +349,14 @@ class DatabaseDriver {
     {
         $columnNameWithPrimaryKey = self::getColumnWithPrimaryKey($tableName);
         
-        $sql_query = "UPDATE $tableName SET $columnName = $valueToUpdate WHERE $columnNameWithPrimaryKey = $rowValue";
+        $sqlQuery = "UPDATE $tableName SET $columnName = :valueToUpdate WHERE $columnNameWithPrimaryKey = :rowValue";
         
         try
         {
-            self::$connection->exec($sql_query);         
+            $sqlQueryPrepared = self::$connection->prepare($sqlQuery);
+            $sqlQueryPrepared->bindParam(':valueToUpdate',$valueToUpdate);
+            $sqlQueryPrepared->bindParam(':rowValue',$rowValue);
+            $sqlQueryPrepared->execute();      
         }catch(Error $e)
         {
             echo "Nastala chyba: " . $e->getMessage() . "<br>";
@@ -356,22 +367,33 @@ class DatabaseDriver {
     {
         $columnNameWithPrimaryKey = self::getColumnWithPrimaryKey($tableName);
 
-        $sql_query = "SELECT * FROM $tableName WHERE $columnNameWithPrimaryKey = $rowValue";
+        $sqlQuery = "SELECT * FROM $tableName WHERE $columnNameWithPrimaryKey = :rowValue";
 
-        $statement = self::$connection->query($sql_query);
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-        return $row;
+        try
+        {
+            $sqlQueryPrepared = self::$connection->prepare($sqlQuery);
+            $sqlQueryPrepared->bindParam(':rowValue',$rowValue);
+            $sqlQueryPrepared->execute(); 
+            $row = $sqlQueryPrepared->fetch(PDO::FETCH_ASSOC);
+            return $row;
+        }catch(Error $e)
+        {
+            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            return [];
+        }   
     }
 
     public static function deleteOneRowInTable(string $tableName, int|string $rowValue)
     {
         $columnNameWithPrimaryKey = self::getColumnWithPrimaryKey($tableName);
 
-        $sql_query = "DELETE FROM $tableName WHERE $columnNameWithPrimaryKey = $rowValue";
+        $sqlQuery = "DELETE FROM $tableName WHERE $columnNameWithPrimaryKey = :rowValue";
 
         try
         {
-            self::$connection->exec($sql_query);         
+            $sqlQueryPrepared = self::$connection->prepare($sqlQuery);
+            $sqlQueryPrepared->bindParam(':rowValue',$rowValue);
+            $sqlQueryPrepared->execute(); 
         }catch(Error $e)
         {
             echo "Nastala chyba: " . $e->getMessage() . "<br>";
