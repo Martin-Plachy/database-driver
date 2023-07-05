@@ -1,0 +1,11 @@
+{
+    "name": "martin-plachy/database-driver",
+    "description": "A simple database driver written in PHP for a connection to MySQL database and sending basic SQL statements.",
+    "authors": [
+        {
+            "name": "Martin Plachý",
+            "email": "martin.plachy86@gmail.com"
+        }
+    ],
+    "require": {}
+}
