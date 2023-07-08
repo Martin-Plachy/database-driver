@@ -1,7 +1,10 @@
 <?php
 
+define('DEV_MODE','Development Mode');
+define('PROD_MODE','Development Mode');
+
 return [
-    'DEV' => [
+    DEV_MODE => [
         'DB_DSN' => 'mysql:host=',
         'DB_SERVERNAME' => '127.0.0.1',
         'DB_PORT' => '3306',
