@@ -12,20 +12,10 @@ class DatabaseDriver
     
     /**
     * @var PDO $connection PHP data object for connection to a database
-    * @var array $databaseInitOptions Init setting for PDO
     * @var string $dbName the name of a database
     */
-
-    private PDO $connection;
-
-    //  INIT OPTIONS:
-
-    private $databaseInitOptions = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    ];
-
-    //  PRIVATE PROPERTIES:
     
+    private PDO $connection;
     private string $dbName;
 
     //  PRIVATE CLASS METHODS:
@@ -53,7 +43,7 @@ class DatabaseDriver
             return $columnNameWithPrimaryKeyArray['COLUMN_NAME'];        
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return "";
         }      
     }
@@ -138,11 +128,11 @@ class DatabaseDriver
             ($configArray['DB_DSN'] . $configArray['DB_SERVERNAME'] . ';port=' . $configArray['DB_PORT'],
             $configArray['DB_USERNAME'],
             $configArray['DB_PASSWORD'],
-            $this->databaseInitOptions);        
+            $configArray['DB_INIT_OPTIONS']);        
             return true;
         }catch(PDOException $e)
         {
-            echo "Připojení k databázovému serveru selhalo: " . $e->getMessage() . "<br>";
+            echo "Unable to connect the database server: " . $e->getMessage() . "<br>";
             return false;
         }
     }
@@ -161,7 +151,7 @@ class DatabaseDriver
             return true;
         }catch(PDOException $e)
         {
-            echo "Odpojení databázového serveru selhalo: " . $e->getMessage() . "<br>";
+            echo "Unable to disconnect the database server: " . $e->getMessage() . "<br>";
             return false;            
         }
 
@@ -187,7 +177,7 @@ class DatabaseDriver
             return true;
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         } 
     }
@@ -208,7 +198,7 @@ class DatabaseDriver
             return true; 
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         }
     }
@@ -291,7 +281,7 @@ class DatabaseDriver
                 return true;
             }catch(Error $e)
             {
-                echo "Nastala chyba: " . $e->getMessage() . "<br>";
+                echo "Error: " . $e->getMessage() . "<br>";
                 return false;   
             }
     }
@@ -324,7 +314,7 @@ class DatabaseDriver
             return $table; 
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return [];
         }
     }
@@ -389,7 +379,7 @@ class DatabaseDriver
             return true;  
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         }
     }
@@ -426,7 +416,7 @@ class DatabaseDriver
             return true; 
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         }
     }
@@ -478,7 +468,7 @@ class DatabaseDriver
             return true;
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         }
     }
@@ -507,7 +497,7 @@ class DatabaseDriver
             return true;      
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         }
     }
@@ -535,7 +525,7 @@ class DatabaseDriver
             return $row;
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return [];
         }   
     }
@@ -562,7 +552,7 @@ class DatabaseDriver
             return true;
         }catch(Error $e)
         {
-            echo "Nastala chyba: " . $e->getMessage() . "<br>";
+            echo "Error: " . $e->getMessage() . "<br>";
             return false;
         }
     }

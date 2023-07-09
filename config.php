@@ -10,5 +10,8 @@ return [
         'DB_PORT' => '3306',
         'DB_USERNAME' => 'root',
         'DB_PASSWORD' => '',
+        'DB_INIT_OPTIONS' => [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]   
     ]
 ];
