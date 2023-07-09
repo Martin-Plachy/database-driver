@@ -7,18 +7,13 @@
  */
 
 class DatabaseDriver
-{
-    //  VARIABLE FOR INSTANCE OF PDO CLASS:
-    
+{ 
     /**
     * @var PDO $connection PHP data object for connection to a database
     * @var string $dbName the name of a database
     */
     
-    private PDO $connection;
     private string $dbName;
-
-    //  PRIVATE CLASS METHODS:
 
     /**
      * The private method returns a name of a column with PRIMARY KEY property
@@ -102,39 +97,8 @@ class DatabaseDriver
         return $sqlQuery;       
     }
 
-    //  CONSTRUCTOR:
-
-    public function __construct()
+    public function __construct(private PDO $connection)
     {
-    }
-
-    //  DATABASE SERVER CONNECTION METHODS:
-
-    /**
-     * The public method handles the database server connection
-     * @param array $args configuration arguments used 
-     * @param string $configSet set of configuration arguments
-     * @throws PDOException if the database server connection was unable to establish 
-     * @return bool returns true if the connection was successful 
-     */
-
-    public function connectDatabaseServer($args = [], string $configSet) : bool
-    {
-        $configArray = $args[$configSet];
-        
-        try
-        {
-            $this->connection = new PDO
-            ($configArray['DB_DSN'] . $configArray['DB_SERVERNAME'] . ';port=' . $configArray['DB_PORT'],
-            $configArray['DB_USERNAME'],
-            $configArray['DB_PASSWORD'],
-            $configArray['DB_INIT_OPTIONS']);        
-            return true;
-        }catch(PDOException $e)
-        {
-            echo "Unable to connect the database server: " . $e->getMessage() . "<br>";
-            return false;
-        }
     }
 
     /**
@@ -156,8 +120,6 @@ class DatabaseDriver
         }
 
     }
-
-    //  SQL STATEMENTS FOR A DATABASE:
 
     /**
      * The public method handles the database creation
@@ -202,8 +164,6 @@ class DatabaseDriver
             return false;
         }
     }
-
-    //  CRUD STATEMENTS FOR A TABLE:
 
     /**
      * The public method handles a table creation
